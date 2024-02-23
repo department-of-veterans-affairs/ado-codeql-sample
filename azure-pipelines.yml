@@ -19,7 +19,7 @@ steps:
 
   - script: |
       set -euo pipefail
-      set -x
+      
       git checkout main
       git config --global user.email "ado@noreply.github.com"
       git config --global user.name "azure-pipelines"
@@ -48,24 +48,32 @@ steps:
     displayName: 'Install CodeQL'
 
   - script: |
+      set -euo pipefail
+      
       echo "Initializing database"
       codeql database create $(Agent.TempDirectory)/db --language=go
     displayName: 'Initialize CodeQL Database'
 
   - script: |
+      set -euo pipefail
+      
       go build -o cli
       ./cli "echo hello"
     displayName: 'Build the Go application'
 
   - script: |
+      set -euo pipefail
+      
       echo "Analyzing database"
       codeql database analyze $(Agent.TempDirectory)/db --format=sarif-latest --output=$(Agent.TempDirectory)/results.sarif
     displayName: 'Analyze the Go application'
 
   - script: |
+      set -euo pipefail
+      
       echo "Uploading SARIF file"
       commit=$(git rev-parse HEAD)
-      github upload-results \
+      codeql github upload-results \
         --repository="department-of-veterans-affairs/ado-codeql-sample" \
         --ref="$(Build.SourceBranch)" \
         --commit="${commit}" \
