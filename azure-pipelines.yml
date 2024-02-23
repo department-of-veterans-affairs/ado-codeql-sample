@@ -58,7 +58,6 @@ steps:
       set -euo pipefail
       
       go build -o cli
-      ./cli "echo hello"
     displayName: 'Build the Go application'
 
   - script: |
@@ -74,6 +73,7 @@ steps:
       echo "Uploading SARIF file"
       commit=$(git rev-parse HEAD)
       codeql github upload-results \
+        --github-url="https://github.com/" \
         --repository="department-of-veterans-affairs/ado-codeql-sample" \
         --ref="$(Build.SourceBranch)" \
         --commit="${commit}" \
