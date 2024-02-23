@@ -13,6 +13,8 @@ steps:
   - task: GoTool@0
     inputs:
       version: '1.22'
+  - checkout: self
+    fetchDepth: 0
 
   - script: |
       set -euo pipefail
