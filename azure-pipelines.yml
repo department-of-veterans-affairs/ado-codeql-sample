@@ -6,9 +6,6 @@ variables:
   - name: PATH
     value: $(Agent.TempDirectory)/codeql:/usr/local/go/bin:/usr/bin:/bin
 
-pool:
-  vmImage: 'ubuntu-latest'
-
 jobs:
   - job: Mirror
     displayName: 'Mirror to GitHub'
