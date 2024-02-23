@@ -11,6 +11,7 @@ pool:
 
 jobs:
   - job: Mirror
+    displayName: 'Mirror to GitHub'
     steps:
       - checkout: self
         fetchDepth: 0
@@ -23,7 +24,8 @@ jobs:
           git push https://$(PAT)@github.com/department-of-veterans-affairs/ado-codeql-sample main --force
         displayName: 'Push to GitHub'
 
-  - job: 'Scan Go'
+  - job: Scan_Go
+    displayName: 'Scan Go'
     dependsOn: Mirror
     pool:
       vmImage: 'ubuntu-latest'
