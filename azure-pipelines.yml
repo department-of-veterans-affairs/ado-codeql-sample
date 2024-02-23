@@ -17,7 +17,7 @@ steps:
   - script: |
       git config --global user.email "ado@noreply.github.com"
       git config --global user.name "azure-pipelines"
-      git push https://github.com/department-of-veterans-affairs/ado-code-sample main --force
+      git push https://github.com/department-of-veterans-affairs/ado-codeql-sample main --force
     displayName: 'Push to GitHub'
 
   - script: |
@@ -60,7 +60,7 @@ steps:
       echo "Uploading SARIF file"
       commit=$(git rev-parse HEAD)
       github upload-results \
-        --repository="department-of-veterans-affairs/ado-code-sample" \
+        --repository="department-of-veterans-affairs/ado-codeql-sample" \
         --ref="main" \
         --commit="${commit}" \
         --sarif="$(Agent.TempDirectory)/results.sarif"
