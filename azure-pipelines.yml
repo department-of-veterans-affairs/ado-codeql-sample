@@ -10,8 +10,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-  - name: 'Install Go'
-    task: GoTool@0
+  - task: GoTool@0
     inputs:
       version: '1.22'
 
