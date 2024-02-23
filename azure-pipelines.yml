@@ -8,6 +8,8 @@ variables:
   - group: GitHub
   - name: PATH
     value: $(Agent.TempDirectory)/codeql:/usr/local/go/bin:/usr/bin:/bin
+  - name: GITHUB_REPO
+    value: department-of-veterans-affairs/ado-codeql-sample
 
 jobs:
   - job: Mirror
@@ -21,7 +23,7 @@ jobs:
           git checkout main
           git config --global user.email "ado@noreply.github.com"
           git config --global user.name "azure-pipelines"
-          git push https://$(PAT)@github.com/department-of-veterans-affairs/ado-codeql-sample main --force
+          git push https://$(PAT)@github.com/$(GITHUB_REPO) main --force
         displayName: 'Push to GitHub'
 
   - job: Scan_Go
@@ -88,7 +90,7 @@ jobs:
           commit=$(git rev-parse HEAD)
           codeql github upload-results \
             --github-url="https://github.com/" \
-            --repository="department-of-veterans-affairs/ado-codeql-sample" \
+            --repository="$(GITHUB_REPO)" \
             --ref="$(Build.SourceBranch)" \
             --commit="${commit}" \
             --sarif="$(Agent.TempDirectory)/results.sarif"
@@ -154,7 +156,7 @@ jobs:
           commit=$(git rev-parse HEAD)
           codeql github upload-results \
             --github-url="https://github.com/" \
-            --repository="department-of-veterans-affairs/ado-codeql-sample" \
+            --repository="$(GITHUB_REPO)" \
             --ref="$(Build.SourceBranch)" \
             --commit="${commit}" \
             --sarif="$(Agent.TempDirectory)/results.sarif"
