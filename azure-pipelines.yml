@@ -96,3 +96,65 @@ jobs:
         displayName: 'Upload SARIF to GitHub'
         env:
           GITHUB_TOKEN: $(PAT)
+
+  - job: Scan_JavaScript
+    displayName: 'Scan JavaScript'
+    dependsOn: Mirror
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - checkout: self
+        fetchDepth: 0
+
+      - script: |
+          set -euo pipefail
+          
+          echo "Evaluating latest CodeQL version"
+          id=$(curl --insecure --silent --retry 3 --location \
+            --header "$(PAT)" \
+            --header "Accept: application/vnd.github.raw" \
+            "https://api.github.com/repos/github/codeql-action/contents/src/defaults.json" | jq -r .bundleVersion)
+          echo "Latest CodeQL version is $id"
+          
+          echo "Downloading CodeQL bundle"
+          curl --insecure --silent --retry 3 --location --output "$(Agent.TempDirectory)/codeql.tgz" \
+            --header "$(PAT)" \
+            "https://github.com/github/codeql-action/releases/download/${id}/codeql-bundle-linux64.tar.gz"
+          echo "Extracting CodeQL bundle"
+          tar -xf "$(Agent.TempDirectory)/codeql.tgz" --directory "$(Agent.TempDirectory)"
+          echo "CodeQL bundle extracted"
+          echo "Cleaning up CodeQL tarball"
+          rm "$(Agent.TempDirectory)/codeql.tgz"
+        displayName: 'Install CodeQL'
+
+      - script: |
+          set -euo pipefail
+          
+          echo "Initializing database"
+          codeql database create $(Agent.TempDirectory)/db --language=javascript
+        displayName: 'Initialize CodeQL Database'
+
+      - script: |
+          set -euo pipefail
+          
+          echo "Analyzing database"
+          codeql database analyze $(Agent.TempDirectory)/db \
+            --sarif-category=javascript --format=sarif-latest \
+            --output=$(Agent.TempDirectory)/results.sarif
+        displayName: 'Analyze the JavaScript application'
+
+      - script: |
+          set -euo pipefail
+          
+          echo "Uploading SARIF file"
+          commit=$(git rev-parse HEAD)
+          codeql github upload-results \
+            --github-url="https://github.com/" \
+            --repository="department-of-veterans-affairs/ado-codeql-sample" \
+            --ref="$(Build.SourceBranch)" \
+            --commit="${commit}" \
+            --sarif="$(Agent.TempDirectory)/results.sarif"
+          echo "SARIF file uploaded"
+        displayName: 'Upload SARIF to GitHub'
+        env:
+          GITHUB_TOKEN: $(PAT)

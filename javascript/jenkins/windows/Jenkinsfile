@@ -1,0 +1,23 @@
+@Library('codeql-windows-dev')_
+
+pipeline {
+    agent { node { label 'windows' } }
+
+    stages {
+        stage('CodeQL - JavaScript') {
+            steps{
+                checkout scm
+                withCredentials([string(credentialsId: 'github-token', variable: 'TOKEN')]) {
+                    ExecuteCodeQL('department-of-veterans-affairs', 'vulnerable-node', 'poc', 'javascript', '', env.TOKEN, false)
+                }
+                archiveArtifacts artifacts: 'codeql-scan-results.csv', fingerprint: true
+            }
+        }
+    }
+    
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}

@@ -1,0 +1,8 @@
+licensing:
+  level: none
+dependabot:
+  level: none
+secretscanning:
+  level: any
+codescanning:
+  level: high
