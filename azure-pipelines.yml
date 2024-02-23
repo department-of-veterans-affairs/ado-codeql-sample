@@ -10,18 +10,18 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-  - displayName: 'Install Go'
+  - name: 'Install Go'
     task: GoTool@0
     inputs:
       version: '1.22'
 
-  - displayName: 'Push to GitHub'
+  - name: 'Push to GitHub'
     script: |
       git config --global user.email "ado@noreply.github.com"
       git config --global user.name "azure-pipelines"
       git push https://github.com/department-of-veterans-affairs/ado-code-sample main --force
 
-  - displayName: 'Install CodeQL'
+  - name: 'Install CodeQL'
     script: |
       set -euo pipefail
       
@@ -42,22 +42,22 @@ steps:
       echo "Cleaning up CodeQL tarball"
       rm "$(Agent.TempDirectory)/codeql.tgz"
 
-  - displayName: 'Initialize CodeQL Database'
+  - name: 'Initialize CodeQL Database'
     script: |
       echo "Initializing database"
       codeql database create $(Agent.TempDirectory)/db --language=go
 
-  - displayName: 'Build the Go application'
+  - name: 'Build the Go application'
     script: |
       go build -o cli
       ./cli "echo hello"
 
-  - displayName: 'Analyze the Go application'
+  - name: 'Analyze the Go application'
     script: |
       echo "Analyzing database"
       codeql database analyze $(Agent.TempDirectory)/db --format=sarif-latest --output=$(Agent.TempDirectory)/results.sarif
 
-  - displayName: 'Upload SARIF to GitHub'
+  - name: 'Upload SARIF to GitHub'
     script: |
       echo "Uploading SARIF file"
       commit=$(git rev-parse HEAD)
