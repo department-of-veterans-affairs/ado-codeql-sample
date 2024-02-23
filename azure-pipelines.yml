@@ -14,14 +14,13 @@ steps:
     inputs:
       version: '1.22'
 
-  - name: 'Push to GitHub'
-    script: |
+  - script: |
       git config --global user.email "ado@noreply.github.com"
       git config --global user.name "azure-pipelines"
       git push https://github.com/department-of-veterans-affairs/ado-code-sample main --force
+    displayName: 'Push to GitHub'
 
-  - name: 'Install CodeQL'
-    script: |
+  - script: |
       set -euo pipefail
       
       echo "Evaluating latest CodeQL version"
@@ -40,24 +39,24 @@ steps:
       echo "CodeQL bundle extracted"
       echo "Cleaning up CodeQL tarball"
       rm "$(Agent.TempDirectory)/codeql.tgz"
+    displayName: 'Install CodeQL'
 
-  - name: 'Initialize CodeQL Database'
-    script: |
+  - script: |
       echo "Initializing database"
       codeql database create $(Agent.TempDirectory)/db --language=go
+    displayName: 'Initialize CodeQL Database'
 
-  - name: 'Build the Go application'
-    script: |
+  - script: |
       go build -o cli
       ./cli "echo hello"
+    displayName: 'Build the Go application'
 
-  - name: 'Analyze the Go application'
-    script: |
+  - script: |
       echo "Analyzing database"
       codeql database analyze $(Agent.TempDirectory)/db --format=sarif-latest --output=$(Agent.TempDirectory)/results.sarif
+    displayName: 'Analyze the Go application'
 
-  - name: 'Upload SARIF to GitHub'
-    script: |
+  - script: |
       echo "Uploading SARIF file"
       commit=$(git rev-parse HEAD)
       github upload-results \
@@ -66,5 +65,6 @@ steps:
         --commit="${commit}" \
         --sarif="$(Agent.TempDirectory)/results.sarif"
       echo "SARIF file uploaded"
+    displayName: 'Upload SARIF to GitHub'
     env:
       GITHUB_TOKEN: $(PAT)
